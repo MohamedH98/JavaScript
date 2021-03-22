@@ -24,31 +24,46 @@ const renderCountry = function (data, className = "") {
   countriesContainer.style.opacity = 1;
 };
 
-const getCountryAndNeighbour = function (country) {
-  // Ajax Call, Country (1)
-  let request = new XMLHttpRequest();
-  request.open("GET", `https://restcountries.eu/rest/v2/name/${country}`);
-  request.send();
-  request.addEventListener("load", function () {
-    const [data] = JSON.parse(this.responseText);
-    console.log(data);
+// const getCountryAndNeighbour = function (country) {
+//   // Ajax Call, Country (1)
+//   let request = new XMLHttpRequest();
+//   request.open("GET", `https://restcountries.eu/rest/v2/name/${country}`);
+//   request.send();
+//   request.addEventListener("load", function () {
+//     const [data] = JSON.parse(this.responseText);
+//     console.log(data);
 
-    // Render Country one
-    renderCountry(data);
+//     // Render Country one
+//     renderCountry(data);
 
-    // Get neighbour country (2)
-    const [neighbour] = data.borders;
-    if (!neighbour) return;
-    const request2 = new XMLHttpRequest();
-    request2.open("GET", `https://restcountries.eu/rest/v2/alpha/${neighbour}`);
-    request2.send();
-    request2.addEventListener("load", function () {
-      const data2 = JSON.parse(this.responseText);
-      console.log(data2);
+//     // Get neighbour country (2)
+//     const [neighbour] = data.borders;
+//     if (!neighbour) return;
+//     const request2 = new XMLHttpRequest();
+//     request2.open("GET", `https://restcountries.eu/rest/v2/alpha/${neighbour}`);
+//     request2.send();
+//     request2.addEventListener("load", function () {
+//       const data2 = JSON.parse(this.responseText);
+//       console.log(data2);
 
-      renderCountry(data2, "neighbour");
-    });
-  });
+//       renderCountry(data2, "neighbour");
+//     });
+//   });
+// };
+
+// getCountryAndNeighbour("Germany");
+
+const getCountryData = (country) => {
+  fetch(`https://restcountries.eu/rest/v2/name/${country}`)
+    .then((response) => response.json())
+    .then((data) => {
+      renderCountry(data[0]);
+      const neighbour = data[0].borders[0];
+      if (!neighbour) return;
+      return fetch(`https://restcountries.eu/rest/v2/alpha/${neighbour}`);
+    })
+    .then((response) => response.json())
+    .then((data) => renderCountry(data, "neighbour"));
 };
 
-getCountryAndNeighbour("Germany");
+getCountryData("spain");
